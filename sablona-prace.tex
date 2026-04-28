@@ -1,12 +1,13 @@
 % Soubory musí být v kódování, které je nastaveno v příkazu \usepackage[...]{inputenc}
 
 \documentclass[%        Základní nastavení
-%  draft,    				  % Testovací překlad
-  12pt,       				% Velikost základního písma je 12 bodů
-  a4paper,    				% Formát papíru je A4
-  %oneside,      			% Jednostranný tisk
-    twoside,      			% Dvoustranný tisk (kapitoly a další důležité části tedy začínají na lichých stranách)
-	unicode,						% Záložky a metainformace ve výsledném  PDF budou v kódování unicode
+    %  draft,    				  % Testovací překlad
+    12pt,       				% Velikost základního písma je 12 bodů
+    a4paper,    				% Formát papíru je A4
+    oneside,      			% Jednostranný tisk
+    %twoside,      			% Dvoustranný tisk - kapitoly začínají na lichých stranách
+    electronic,   			% Elektronické PDF - symetrické okraje, hybridní prázdné stránky (pro tisk zakomentujte tuto volbu)
+    unicode,						% Záložky a metainformace ve výsledném PDF budou v kódování unicode
 ]{report}				    	% Dokument třídy 'zpráva', vhodná pro sazbu závěrečných prací s kapitolami
 
 \usepackage[utf8]		  %	Kódování zdrojových souborů je UTF-8
@@ -51,6 +52,17 @@
                       % vhodné pro prezentaci obsahu elektronické přílohy (např. CD)
 
 \usepackage{algorithm2e} %balíček pro sazbu algoritmů/pseudokódu
+
+
+%%%%%%%%%%%%%%% FONT VAFLE PRO TITULNÍ STRANU %%%%%%%%%%%%%%%
+%% Font map file configuration for Vafle font
+\pdfmapfile{=xlatex/font/vafle.map}
+
+%% Definice pro kompatibilitu s LuaTeX
+\ifcsname directlua\endcsname
+  \protected\def\pdfmapfile{\pdfextension mapfile }
+\fi
+%%%%%%%%%%%%%%% FONT VAFLE PRO TITULNÍ STRANU %%%%%%%%%%%%%%%
 
 \usepackage[formats]{listings}	% Balíček pro sazbu zdrojových textů
 \lstset{              % nastavení
@@ -98,6 +110,57 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%  Nastavení citačního stylu pomocí BIBLATEX  %%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Sekci zakomentujte pokud využíváte jen bibitem
+
+\usepackage{csquotes}   % Balíček pro správné sazby uvozovek v citacích (doporučeno pro použití s biblatex)
+
+\usepackage[
+  backend=biber,        % typ zpracování
+  style=iso-numeric,    % style složení citace
+  defernumbers=true,    % reset číslování pro více literatur
+  maxnames=5,           % Zobrazí max. počet autorů
+  minnames=5,           % Když více, zobrazí et al.
+  % urldate=iso,        % formát data přístupu podle ISO (YYYY-MM-DD)
+]{biblatex}
+
+% "a" před posledním autorem
+\DefineBibliographyExtras{czech}{%
+  \renewcommand*{\finalnamedelim}{\space a\space}
+}
+
+%% Formátování urldate podle českých norem (ISO 690). Aktuálně nastavuje špatně pozici před URL.
+%% Doporučení: vypište text "[citováno YYYY-MM-DD]." do položky note
+%% Zobrazí: [citováno YYYY-MM-DD].
+% \DeclareFieldFormat{urldate}{\mkbibbrackets{citovánao\space#1}}
+
+\addbibresource{text/literatura.bib} % Soubor s literaturou
+
+\DeclareFieldFormat{labelnumberwidth}{[#1]} % Nastaví formát čísla v bibliography se zavorkama
+
+\setlength{\biblabelsep}{1em}   % Nastaví mezeru za závorkou
+\AtBeginBibliography{\small}    % velikost písma liteartury
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%  SEKCE PRO VLASTNÍ BALÍČKY  %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%\usepackage[table,xcdraw]{xcolor}
+%\usepackage{pifont}
+%\usepackage{tabularx}
+%\usepackage{makecell}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%      Definice informací o dokumentu             %%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -114,12 +177,12 @@
 %\hypersetup{
 %  pdftitle={Název studentské práce},    	% Pole 'Document Title'
 %  pdfauthor={Autor studenstké práce},   	% Pole 'Author'
-%  pdfsubject={Typ práce}, 						  	% Pole 'Subject'
+%  pdfsubject={Typ práce}, 				    % Pole 'Subject'
 %  pdfkeywords={Klíčová slova}           	% Pole 'Keywords'
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\pdfmapfile{=vafle.map}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%       Začátek dokumentu               %%%%%%%%%%%%%%%%%%%%%
@@ -141,17 +204,17 @@
 \includepdf[pages=1]%    buďto generovaného informačním systémem
   {pdf/student-titulka}% název souboru nesmí obsahovat mezery!
 %% NEBO vytvoření titulní stránky z balíčku
-%\maketitle
+%\maketitle 
 %%
 \oddpage  % při dvojstranném tisku se přidá prázdná stránka
-   
+
 %% Vložení zadání
 \includepdf[pages=1]%   buďto generovaného informačním systémem
   {pdf/student-zadani}% název souboru nesmí obsahovat mezery!
 %% NEBO lze vytvořit prázdný list příkazem ze šablony
-%\patternpage{}%
-%	{\sffamily\Huge\centering ZDE VLOŽIT LIST ZADÁNÍ}%
-%	{\sffamily\centering Z~důvodu správného číslování stránek}
+% \patternpage{}%
+% 	{\sffamily\Huge\centering ZDE VLOŽIT LIST ZADÁNÍ}%
+% 	{\sffamily\centering Z~důvodu správného číslování stránek}
 %%
 \oddpage% při dvojstranném tisku se přidá prázdná stránka
 
@@ -193,6 +256,11 @@
 
 \cleardoublepage\pagestyle{plain}   % zapnutí číslování stránek
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%       Kapitoly        %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %Pro vkládání kapitol i příloh používejte raději \include než \input
 %%% Vložení souboru 'text/uvod.tex' s úvodem
 \include{text/uvod}
@@ -211,8 +279,38 @@
 %%% Vložení souboru 'text/zaver' se závěrem
 \include{text/zaver}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%      Tisk literatury        %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Při využití vlastní definice pomocí bibitem
 %%% Vložení souboru 'text/literatura' se seznamem zdrojů
 \include{text/literatura}
+
+
+%%% Při využití literatury pomocí BIBLATEX
+% === běžná literatura ===
+%\printbibliography[
+%  heading=bibintoc,
+%  notkeyword={P},
+%  title={Literatura}
+%]
+
+%%% Pro disertační práce, oddělená literatura autora.
+%%% Každý takový zdroj musí obsahovat položku: keyword={P}
+% === publikace autora ===
+%\newrefcontext[labelprefix=P]
+%\printbibliography[
+%  heading=bibintoc,
+%  keyword={P},
+%  title={Literatura autora}
+%]
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%    Tisk zkratek, příloh     %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Vložení souboru 'text/zkratky' se seznam použitých symbolů, veličin a zkratek
 \include{text/zkratky}
