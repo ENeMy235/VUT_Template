@@ -68,6 +68,11 @@
 \hypersetup{pdfpagemode=FullScreen}       % otevření rovnou v režimu celé obrazovky
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Přidání cesty k beamer tématům (přesunutým do xlatex složky)
+\makeatletter
+\def\input@path{{./xlatex/}}
+\makeatother
+
 \usetheme{VUT} 				% barvy a rozložení prezentace odpovídající VUT FEKT
 % alternativně lze použít jiná berevná témata, ale bez záruky. Například: 
 %\usetheme{Darmstadt} \usecolortheme{default2}
