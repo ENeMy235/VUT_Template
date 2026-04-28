@@ -136,12 +136,15 @@
 %% Zobrazí: [citováno YYYY-MM-DD].
 % \DeclareFieldFormat{urldate}{\mkbibbrackets{citovánao\space#1}}
 
-\addbibresource{text/literatura.bib} % Soubor s literaturou
-
 \DeclareFieldFormat{labelnumberwidth}{[#1]} % Nastaví formát čísla v bibliography se zavorkama
 
 \setlength{\biblabelsep}{1em}   % Nastaví mezeru za závorkou
 \AtBeginBibliography{\small}    % velikost písma liteartury
+
+%%
+%% Definice zdrojů pro bibliografii
+%% 
+\addbibresource{text/literatura.bib} % Soubor s literaturou
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
