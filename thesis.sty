@@ -154,9 +154,26 @@
   {\PackageError{'thesis'}{Od verze 2.20 je provadena sazba pouze ve VUT stylu a volba 'vutstyle' je zrusena}{}}
 
 %% Zpracovani volby sazebniho obrazce
+%% Volba 'electronic' - elektronicke PDF: symetricke okraje
+\newif\if@electronic
+\@electronicfalse
+\newif\if@firstchapterdone  % Flag pro sledovani, zda jsme za prvni kapitolou
+\@firstchapterdonefalse
 \DeclareOption{electronic}%
   {%
+    \@electronictrue
     \global\let\akt@publish=\publish@electronic
+  }
+
+%% Volba 'electronicWithoutBlankPages' - potlaci vkladani prazdnych stranek
+%% (hybridni cislovani: pred prvni kapitolou se prazdne stranky preskakuji,
+%%  po prvni kapitole se chovaji jako v rezimu twoside).
+%% Tato volba ma smysl pouze spolu s 'electronic'.
+\newif\if@electronicWithoutBlankPages
+\@electronicWithoutBlankPagesfalse
+\DeclareOption{electronicWithoutBlankPages}%
+  {%
+    \@electronicWithoutBlankPagestrue
   }
 
 %% Upozorneni na nezname volby
@@ -198,6 +215,20 @@
 
 %% Zpracovani voleb
 \ProcessOptions\relax
+
+%% Volba 'electronicWithoutBlankPages' vyzaduje pouziti 'electronic'.
+%% Pokud je pouzita bez 'electronic', vypiseme upozorneni a volbu deaktivujeme.
+\if@electronicWithoutBlankPages
+  \if@electronic\else
+    \PackageWarning{thesis}{%
+      Volba 'electronicWithoutBlankPages' vyzaduje pouziti 'electronic'.\MessageBreak
+      Bez 'electronic' nebude mit zadny ucinek.\MessageBreak
+      Option 'electronicWithoutBlankPages' requires 'electronic'.\MessageBreak
+      Without 'electronic' it has no effect.%
+    }%
+    \@electronicWithoutBlankPagesfalse
+  \fi
+\fi
 
 %% Vlozeni balicku babel
 \RequirePackage[main=\orig@lang,\tran@lang]{babel}
@@ -1194,7 +1225,14 @@ a~som si plne vedom%
 \providecommand\chapter{}
 \renewcommand\chapter
   {%
-    \cleardoublepage\@startsection{chapter}{0}{\z@}%
+    \cleardoublepage
+    % Nastavime flag po prvni kapitole (pro electronicWithoutBlankPages)
+    \if@electronicWithoutBlankPages
+      \ifnum\c@chapter>0
+        \global\@firstchapterdonetrue
+      \fi
+    \fi
+    \@startsection{chapter}{0}{\z@}%
     {-3.5ex \@plus -1ex \@minus -.2ex}%
     {2.3ex \@plus.2ex}%   %puvodne2.3ex
     %{\normalfont\Large\bfseries\MakeUppercase}%
@@ -1227,16 +1265,31 @@ a~som si plne vedom%
 \def\cleardoublepage
   {%
     \clearpage
-    \if@twoside
-      \ifodd
-        \c@page
-      \else
-        \hbox{}
-        \thispagestyle{empty}
-        \newpage
-        \if@twocolumn
+    \if@electronicWithoutBlankPages
+      % V rezimu electronicWithoutBlankPages: pred prvni kapitolou preskocime cislo, po ni vlozime prazdnou stranku
+      \ifodd\c@page\else
+        \if@firstchapterdone
+          % Po prvni kapitole - vlozime prazdnou stranku (jako v twoside)
           \hbox{}
+          \thispagestyle{empty}
           \newpage
+        \else
+          % Pred prvni kapitolou - pouze inkrementujeme cislo stranky
+          \stepcounter{page}%
+        \fi
+      \fi
+    \else
+      \if@twoside
+        \ifodd
+          \c@page
+        \else
+          \hbox{}
+          \thispagestyle{empty}
+          \newpage
+          \if@twocolumn
+            \hbox{}
+            \newpage
+          \fi
         \fi
       \fi
     \fi
@@ -1482,9 +1535,13 @@ a~som si plne vedom%
   }%%
   \newpage
 
-  \if@twoside
-    \thispagestyle{empty}%
-    \cleardoublepage
+  \if@electronicWithoutBlankPages
+    % V rezimu electronicWithoutBlankPages nevkladame prazdne stranky
+  \else
+    \if@twoside
+      \thispagestyle{empty}%
+      \cleardoublepage
+    \fi
   \fi
 }%
 
@@ -1592,9 +1649,13 @@ a~som si plne vedom%
 
   \newpage
 
-  \if@twoside
-    \thispagestyle{empty}%
-    \cleardoublepage
+  \if@electronicWithoutBlankPages
+    % V rezimu electronicWithoutBlankPages nevkladame prazdne stranky
+  \else
+    \if@twoside
+      \thispagestyle{empty}%
+      \cleardoublepage
+    \fi
   \fi
 
   \setcounter{page}{1}      %% Obalka se do poctu stran nepocita
@@ -1796,9 +1857,13 @@ a~som si plne vedom%
 
   \newpage
 
-  \if@twoside
-    \thispagestyle{empty}%
-    \cleardoublepage
+  \if@electronicWithoutBlankPages
+    % V rezimu electronicWithoutBlankPages nevkladame prazdne stranky
+  \else
+    \if@twoside
+      \thispagestyle{empty}%
+      \cleardoublepage
+    \fi
   \fi
 }%
 }%ifclassloaded
@@ -2136,9 +2201,13 @@ a~som si plne vedom%
 %}
 
 \newcommand{\oddpage}{%
-    \if@twoside
-      \pagestyle{empty}
-      \cleardoublepage
+    \if@electronicWithoutBlankPages
+      % V rezimu electronicWithoutBlankPages nevkladame prazdne stranky
+    \else
+      \if@twoside
+        \pagestyle{empty}
+        \cleardoublepage
+      \fi
     \fi
 		%%\thispagestyle{empty}%
 	%\thispagestyle{plain}%
